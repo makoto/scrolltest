@@ -64,11 +64,12 @@ async function main() {
   const fooAddress = '0x5f5e99139a17c56eadc3b1d01535224d003b7e5b'
   const account = fooAddress;
   // Note that currently, the public rpc does not support `eth_getProof` method.
-  console.log(1)
-  //  const provider = new providers.JsonRpcProvider(process.env.L1_PROVIDER_URL);
-  const provider = new providers.JsonRpcProvider("https://sepolia-rpc.scroll.io");
+  const L1_PROVIDER_URL = process.env.L1_PROVIDER_URL;
+//   console.log(1, L1_PROVIDER_URL)
+  const l1provider = new providers.JsonRpcProvider(L1_PROVIDER_URL);
+  const l2provider = new providers.JsonRpcProvider("https://sepolia-rpc.scroll.io");
   console.log(2, {account, storage})
-  const proof = await provider.send("eth_getProof", [account, [storage], "latest"]);
+  const proof = await l2provider.send("eth_getProof", [account, [storage], "latest"]);
   console.log(3, JSON.stringify(proof, null, 2))
   const accountProof: Array<string> = proof.accountProof;
   const storageProof: Array<string> = proof.storageProof[0].proof;
@@ -81,7 +82,7 @@ async function main() {
     ...storageProof,
   ]);
   console.log(6, {compressedProof})
-  const verifier = new Contract("0x64cb3A0Dcf43Ae0EE35C1C15edDF5F46D48Fa570", abi, provider);
+  const verifier = new Contract("0x64cb3A0Dcf43Ae0EE35C1C15edDF5F46D48Fa570", abi, l1provider);
 
   // this will used to extract stateRoot and storageValue from compressedProof.
   console.log(7, await verifier.callStatic.verifyZkTrieProof(account, storage, compressedProof));
