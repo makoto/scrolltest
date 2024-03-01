@@ -60,8 +60,8 @@ async function main() {
   //   Sepolia
   //   const fooAddress ='0xadbb7d8ae892c017d387dd26ff24fce79212932c'
   //   Scroll Sepolia
-  //   https://sepolia.scrollscan.dev/address/0x5f5e99139a17c56eadc3b1d01535224d003b7e5b#code
-  const fooAddress = '0x5f5e99139a17c56eadc3b1d01535224d003b7e5b'
+  //   https://sepolia.scrollscan.dev/address/0x94fbce7ca1a0152cfc99f90f4421d31cf356c896#code
+  const fooAddress = '0x94fbce7ca1a0152cfc99f90f4421d31cf356c896'
   const account = fooAddress;
   // Note that currently, the public rpc does not support `eth_getProof` method.
   const L1_PROVIDER_URL = process.env.L1_PROVIDER_URL;
