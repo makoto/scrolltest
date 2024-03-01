@@ -2,7 +2,7 @@
 
 A test script to test scroll proof verification
 
-### Running test
+## Running test
 
 ```
 gh repo clone makoto/scrolltest
@@ -11,7 +11,7 @@ yarn
 yarn test
 ```
 
-### Output
+## Output
 
 ```
 tmp/scrolltest - (master) > yarn test
