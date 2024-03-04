@@ -56,7 +56,7 @@ const abi: Array<JsonFragment> = [
 async function main() {
 //   const account = constants.AddressZero;
   const storage = constants.HashZero;
-  const batchIndex = constants.HashZero;
+  const batchIndex = 100579
   //   Sepolia
   //   const fooAddress ='0xadbb7d8ae892c017d387dd26ff24fce79212932c'
   //   Scroll Sepolia
