@@ -27,7 +27,7 @@ const abi: Array<JsonFragment> = [
   },
   {
     inputs: [
-      { internalType: "bytes32", name: "batchHash", type: "bytes32" },
+      { internalType: "uint256", name: "batchIndex", type: "uint256" },
       { internalType: "address", name: "account", type: "address" },
       { internalType: "bytes32", name: "storageKey", type: "bytes32" },
       { internalType: "bytes", name: "proof", type: "bytes" },
@@ -56,7 +56,7 @@ const abi: Array<JsonFragment> = [
 async function main() {
 //   const account = constants.AddressZero;
   const storage = constants.HashZero;
-  const batchHash = constants.HashZero;
+  const batchIndex = constants.HashZero;
   //   Sepolia
   //   const fooAddress ='0xadbb7d8ae892c017d387dd26ff24fce79212932c'
   //   Scroll Sepolia
@@ -87,7 +87,7 @@ async function main() {
   // this will used to extract stateRoot and storageValue from compressedProof.
   console.log(7, await verifier.callStatic.verifyZkTrieProof(account, storage, compressedProof));
   // This will be used to check whether the compressedProof is valid under the batch whose hash is `batchHash`.
-  console.log(8, await verifier.callStatic.verifyStateCommitment(batchHash, account, storage, compressedProof));
+  console.log(8, await verifier.callStatic.verifyStateCommitment(batchIndex, account, storage, compressedProof));
 }
 
 // We recommend this pattern to be able to use async/await everywhere
