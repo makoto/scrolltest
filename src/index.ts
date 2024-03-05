@@ -70,7 +70,7 @@ async function main() {
   const l1provider = new providers.JsonRpcProvider(L1_PROVIDER_URL);
   const l2provider = new providers.JsonRpcProvider("https://sepolia-rpc.scroll.io");
   console.log(2, {account, storage})
-  const proof = await l2provider.send("eth_getProof", [account, [storage], "latest"]);
+  const proof = await l2provider.send("eth_getProof", [account, [storage], "finalized"]);
   console.log(3, JSON.stringify(proof, null, 2))
   const accountProof: Array<string> = proof.accountProof;
   const storageProof: Array<string> = proof.storageProof[0].proof;
