@@ -70,7 +70,22 @@ async function main() {
   const l1provider = new providers.JsonRpcProvider(L1_PROVIDER_URL);
   const l2provider = new providers.JsonRpcProvider("https://sepolia-rpc.scroll.io");
   console.log(2, {account, storage})
-  const proof = await l2provider.send("eth_getProof", [account, [storage], "finalized"]);
+
+  // get the finalized block number
+  const block = await l2provider.send("eth_getBlockByNumber", ["finalized", false]);
+  const blockNo = Number(block.number);
+  console.log(21, {blockNo});
+
+  // get the batch index given the block number
+  // scroll mainnet url: https://mainnet-api-re.scroll.io/api/search
+  const searchUrl = 'https://sepolia-api-re.scroll.io/api/search';
+  const fetch = require('node-fetch');
+  const resp = await fetch(`${searchUrl}?keyword=${blockNo}`)
+  const obj = await resp.json()
+  const batchIndex = obj.batch_index
+  console.log(22, {batchIndex})
+
+  const proof = await l2provider.send("eth_getProof", [account, [storage], block.number]);
   console.log(3, JSON.stringify(proof, null, 2))
   const accountProof: Array<string> = proof.accountProof;
   const storageProof: Array<string> = proof.storageProof[0].proof;
@@ -83,15 +98,13 @@ async function main() {
     ...storageProof,
   ]);
   console.log(6, {compressedProof})
-  
+
   const verifier = new Contract("0x64cb3A0Dcf43Ae0EE35C1C15edDF5F46D48Fa570", abi, l1provider);
-  const scrollChain = new Contract("0x2D567EcE699Eabe5afCd141eDB7A4f2D0D6ce8a0", scrollChainAbi, l1provider)
-  const batchIndex  = await scrollChain.lastFinalizedBatchIndex()
-  console.log(61, batchIndex.toNumber())
+  // const scrollChain = new Contract("0x2D567EcE699Eabe5afCd141eDB7A4f2D0D6ce8a0", scrollChainAbi, l1provider)
   // this will used to extract stateRoot and storageValue from compressedProof.
   console.log(7, await verifier.callStatic.verifyZkTrieProof(account, storage, compressedProof));
   // This will be used to check whether the compressedProof is valid under the batch whose hash is `batchHash`.
-  console.log(8, await verifier.callStatic.verifyStateCommitment(batchIndex.toNumber(), account, storage, compressedProof));
+  console.log(8, await verifier.callStatic.verifyStateCommitment(batchIndex, account, storage, compressedProof));
 }
 
 // We recommend this pattern to be able to use async/await everywhere
