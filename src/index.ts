@@ -58,13 +58,13 @@ const abi: Array<JsonFragment> = [
 
 async function main() {
   // Should return `Satoshi`
-  const slots = [1n];
+  // const slots = [1n];
   // Should return `Hubert Blaine Wolfeschlegelsteinhausenbergerdorff Sr.`
-  // const slots = [
-  //   72984518589826227531578991903372844090998219903258077796093728159832249402700n,
-  //   20078987066573592807830010549854483640024192519558332002348594298392865432561n,
-  //   20078987066573592807830010549854483640024192519558332002348594298392865432562n
-  // ];
+  const slots = [
+    72984518589826227531578991903372844090998219903258077796093728159832249402700n,
+    20078987066573592807830010549854483640024192519558332002348594298392865432561n,
+    20078987066573592807830010549854483640024192519558332002348594298392865432562n
+  ];
   const hexSlots = slots.map((slot) => toBeHex(slot, 32))
   //   Sepolia
   //   const fooAddress ='0xadbb7d8ae892c017d387dd26ff24fce79212932c'
@@ -95,46 +95,32 @@ async function main() {
   console.log(22, {batchIndex})
   console.log(23, [account, hexSlots, block.number])
   const proof = await l2provider.send("eth_getProof", [account, hexSlots, block.number]);
-  console.log(3, JSON.stringify(proof, null, 2))
+  // console.log(3, JSON.stringify(proof, null, 2))
+  proof['storageProof'].map((sp:any, index:number) => {
+    let buf = Buffer.from(sp.value.slice(2), "hex");
+    let data = buf.toString("utf8");
+    console.log(index, sp['value'], data)
+  })
+  const verifier = new Contract("0x64cb3A0Dcf43Ae0EE35C1C15edDF5F46D48Fa570", abi, l1provider);
   const accountProof: Array<string> = proof.accountProof;
-  const storageProof: Array<string> = proof.storageProof[0].proof;
-  console.log(4, {accountProof})
-  console.log(5, {storageProof})
-  console.log(6, accountProof.length, accountProof.length.toString(16))
-  console.log(7, storageProof.length, storageProof.length.toString(16))
-  console.log(51, `0x${accountProof.length.toString(16).padStart(2, "0")}`)
-  console.log(52, `0x${storageProof.length.toString(16).padStart(2, "0")}`)
-  console.log(53,
-    [
+  for (let index = 0; index < hexSlots.length; index++) {
+    const storageProof: Array<string> = proof.storageProof[index].proof;
+    const compressedProof = concat([
       `0x${accountProof.length.toString(16).padStart(2, "0")}`,
       ...accountProof,
       `0x${storageProof.length.toString(16).padStart(2, "0")}`,
       ...storageProof,
-    ]
-
-  )
-  const compressedProof = concat([
-    `0x${accountProof.length.toString(16).padStart(2, "0")}`,
-    ...accountProof,
-    `0x${storageProof.length.toString(16).padStart(2, "0")}`,
-    ...storageProof,
-  ]);
-  console.log(6, Buffer.from(compressedProof).toString('hex'))
-
-  const verifier = new Contract("0x64cb3A0Dcf43Ae0EE35C1C15edDF5F46D48Fa570", abi, l1provider);
-  // const scrollChain = new Contract("0x2D567EcE699Eabe5afCd141eDB7A4f2D0D6ce8a0", scrollChainAbi, l1provider)
-  // this will used to extract stateRoot and storageValue from compressedProof.
-  for (let index = 0; index < hexSlots.length; index++) {
+    ]);
+  
     const slot = hexSlots[index];
-    console.log(61, {account, slot, compressedProof})
+    // console.log(61, {account, slot, compressedProof})
     const r = await verifier.callStatic.verifyZkTrieProof(account, slot, compressedProof)
-    console.log(7, r);
-    console.log(71, r.storageValue.toString("utf8"));
+    // console.log(71, r.storageValue.toString("utf8"));
     let buf = Buffer.from(r.storageValue.slice(2), "hex");
     let data = buf.toString("utf8");
-    console.log(72, data);
+    console.log(index, data);
     // This will be used to check whether the compressedProof is valid under the batch whose hash is `batchHash`.
-    console.log(8, (await verifier.estimateGas.verifyStateCommitment(batchIndex, account, slot, compressedProof)).toNumber());
+    // console.log(8, (await verifier.estimateGas.verifyStateCommitment(batchIndex, account, slot, compressedProof)).toNumber());
   }
 }
 
